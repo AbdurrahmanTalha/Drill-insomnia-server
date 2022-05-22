@@ -51,7 +51,7 @@ async function run() {
         }
         app.get('/tools/home', async (req, res) => {
             const query = {}
-            const tools = await drillCollection.find(query).limit(6).toArray()
+            const tools = await drillCollection.find(query).limit(6).sort({_id: -1}).toArray()
             res.send(tools)
         })
         app.get('/tools', verifyJWT, verifyAdmin, async (req, res) => {
