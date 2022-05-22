@@ -39,6 +39,7 @@ async function run() {
         const ratingCollection = client.db("drill-insomnia").collection("ratings");
         const usersCollection = client.db("drill-insomnia").collection("users");
         const purchaseCollection = client.db("drill-insomnia").collection("purchase");
+
         const verifyAdmin = async (req, res, next) => {
             const requester = req.decoded.email;
             const requestAccount = await usersCollection.findOne({ email: requester });
@@ -49,6 +50,11 @@ async function run() {
             }
         }
         app.get('/tools/home', async (req, res) => {
+            const query = {}
+            const tools = await drillCollection.find(query).limit(6).toArray()
+            res.send(tools)
+        })
+        app.get('/tools', verifyJWT, verifyAdmin, async (req, res) => {
             const query = {}
             const tools = await drillCollection.find(query).toArray()
             res.send(tools)
@@ -119,12 +125,17 @@ async function run() {
             else {
                 res.status(403).send({ message: 'forbidden access' })
             }
-            
+
         })
         app.post('/product', verifyJWT, verifyAdmin, async (req, res) => {
             const drill = req.body;
             const result = await drillCollection.insertOne(drill)
             res.send(result)
+        })
+        app.get("/orders", verifyJWT, verifyAdmin, async (req, res) => {
+            const query = {};
+            const orders = await purchaseCollection.find(query).toArray();
+            res.send(orders)
         })
     }
     finally {
