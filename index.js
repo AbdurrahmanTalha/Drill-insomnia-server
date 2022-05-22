@@ -138,6 +138,10 @@ async function run() {
             res.send(result)
         })
         
+        app.get('/user', verifyJWT,async (req, res) => {
+            const users = await usersCollection.find().toArray();
+            res.send(users);
+        });
         app.delete("/orders/:id", verifyJWT, async (req, res) => {
             const id = req.params.id;
             const filter = { _id: ObjectId(id) };
