@@ -127,15 +127,16 @@ async function run() {
             }
 
         })
-        app.post('/product', verifyJWT, verifyAdmin, async (req, res) => {
-            const drill = req.body;
-            const result = await drillCollection.insertOne(drill)
-            res.send(result)
-        })
+        
         app.get("/orders", verifyJWT, verifyAdmin, async (req, res) => {
             const query = {};
             const orders = await purchaseCollection.find(query).toArray();
             res.send(orders)
+        })
+        app.post('/product', verifyJWT, verifyAdmin, async (req, res) => {
+            const drill = req.body;
+            const result = await drillCollection.insertOne(drill)
+            res.send(result)
         })
     }
     finally {
