@@ -51,7 +51,7 @@ async function run() {
         }
         app.get('/tools/home', async (req, res) => {
             const query = {}
-            const tools = await drillCollection.find(query).limit(6).sort({_id: -1}).toArray()
+            const tools = await drillCollection.find(query).limit(6).sort({ _id: -1 }).toArray()
             res.send(tools)
         })
         app.get('/tools', verifyJWT, verifyAdmin, async (req, res) => {
@@ -125,9 +125,8 @@ async function run() {
             else {
                 res.status(403).send({ message: 'forbidden access' })
             }
-
         })
-        
+
         app.get("/orders", verifyJWT, verifyAdmin, async (req, res) => {
             const query = {};
             const orders = await purchaseCollection.find(query).toArray();
@@ -136,6 +135,13 @@ async function run() {
         app.post('/product', verifyJWT, verifyAdmin, async (req, res) => {
             const drill = req.body;
             const result = await drillCollection.insertOne(drill)
+            res.send(result)
+        })
+        
+        app.delete("/orders/:id", verifyJWT, async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) };
+            const result = await purchaseCollection.deleteOne(filter);
             res.send(result)
         })
     }
