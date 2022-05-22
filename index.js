@@ -137,11 +137,20 @@ async function run() {
             const result = await drillCollection.insertOne(drill)
             res.send(result)
         })
-        
-        app.get('/user', verifyJWT,async (req, res) => {
+
+        app.get('/user', verifyJWT, verifyAdmin, async (req, res) => {
             const users = await usersCollection.find().toArray();
             res.send(users);
         });
+        app.put('/user/admin/:email', verifyJWT, verifyAdmin, async (req, res) => {
+            const email = req.params.email;
+            const filter = { email: email };
+            const updateDoc = {
+                $set: { role: 'admin' },
+            };
+            const result = await usersCollection.updateOne(filter, updateDoc);
+            res.send(result);
+        })
         app.delete("/orders/:id", verifyJWT, async (req, res) => {
             const id = req.params.id;
             const filter = { _id: ObjectId(id) };
