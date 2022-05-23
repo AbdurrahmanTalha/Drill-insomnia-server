@@ -3,6 +3,8 @@ const express = require('express');
 const cors = require('cors');
 require("dotenv").config()
 const jwt = require('jsonwebtoken');
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+
 
 const app = express()
 const port = process.env.PORT || 5000
@@ -39,6 +41,7 @@ async function run() {
         const ratingCollection = client.db("drill-insomnia").collection("ratings");
         const usersCollection = client.db("drill-insomnia").collection("users");
         const purchaseCollection = client.db("drill-insomnia").collection("purchase");
+        const paymentCollection = client.db("drill-insomnia").collection("payment");
 
         const verifyAdmin = async (req, res, next) => {
             const requester = req.decoded.email;
@@ -49,6 +52,21 @@ async function run() {
                 res.status(403).send({ message: "Forbidden" })
             }
         }
+        app.post("/create-payment-intent", verifyJWT, async (req, res) => {
+            const product = req.body;
+            const price = product.productPrice;
+            const amount = price * 100;
+            const paymentIntent = await stripe.paymentIntents.create({
+                amount: amount,
+                currency: "usd",
+                payment_method_types: ["card"],
+            });
+
+            res.send({
+                clientSecret: paymentIntent.client_secret,
+            });
+        });
+
         app.get('/tools/home', async (req, res) => {
             const query = {}
             const tools = await drillCollection.find(query).limit(6).sort({ _id: -1 }).toArray()
@@ -156,6 +174,31 @@ async function run() {
             const filter = { _id: ObjectId(id) };
             const result = await purchaseCollection.deleteOne(filter);
             res.send(result)
+        })
+        app.delete("/product/:id", verifyJWT, verifyAdmin, async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) };
+            const result = await drillCollection.deleteOne(filter);
+            res.send(result)
+        })
+        app.get("/purchase/:id", verifyJWT, async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) }
+            const purchase = await purchaseCollection.findOne(query);
+            res.send(purchase)
+        })
+        app.patch("/payment/:id", verifyJWT, async (req, res) => {
+            const id = req.params.id;
+            const payment = req.body;
+            const filter = { _id: ObjectId(id) };
+            const updatedDoc = {
+                $set: {
+                    paid: true
+                }
+            }
+            const updatedPurchase = await purchaseCollection.updateOne(filter, updatedDoc);
+            res.send(updatedPurchase)
+
         })
     }
     finally {
