@@ -100,7 +100,7 @@ async function run() {
         app.get('/admin/:email', async (req, res) => {
             const email = req.params.email;
             const user = await usersCollection.findOne({ email: email });
-            const isAdmin = user.role === 'admin';
+            const isAdmin = user?.role === 'admin';
             res.send({ admin: isAdmin })
         })
         app.get('/item/:id', async (req, res) => {
@@ -130,19 +130,15 @@ async function run() {
                 },
             };
             const result = drillCollection.updateOne(filter, updatedDoc, options);
+
             res.send({ result })
         })
+
         app.get('/myOrder', verifyJWT, async (req, res) => {
-            const decodedEmail = req.decoded.email;
             const email = req.query.email;
-            if (email === decodedEmail) {
-                const query = { buyerEmail: email };
-                const drill = await purchaseCollection.find(query).toArray();
-                res.send(drill);
-            }
-            else {
-                res.status(403).send({ message: 'forbidden access' })
-            }
+            const query = { buyerEmail: email };
+            const drill = await purchaseCollection.find(query).toArray();
+            res.send(drill)
         })
 
         app.get("/orders", verifyJWT, verifyAdmin, async (req, res) => {
@@ -187,18 +183,22 @@ async function run() {
             const purchase = await purchaseCollection.findOne(query);
             res.send(purchase)
         })
-        app.patch("/payment/:id", verifyJWT, async (req, res) => {
+
+        app.patch('/payment/:id', verifyJWT, async (req, res) => {
             const id = req.params.id;
             const payment = req.body;
             const filter = { _id: ObjectId(id) };
             const updatedDoc = {
                 $set: {
-                    paid: true
+                    paid: true,
+                    transactionId: payment.transactionId
                 }
             }
-            const updatedPurchase = await purchaseCollection.updateOne(filter, updatedDoc);
-            res.send(updatedPurchase)
+            console.log(updatedDoc)
 
+            const result = await paymentCollection.insertOne(payment);
+            const updatedPurchases = await purchaseCollection.updateOne(filter, updatedDoc);
+            res.send(updatedPurchases);
         })
     }
     finally {
