@@ -171,6 +171,17 @@ async function run() {
             const result = await purchaseCollection.deleteOne(filter);
             res.send(result)
         })
+        app.put('/pending/:id', verifyJWT, async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) };
+            const updatedDoc = {
+                $set: {
+                    pending: false
+                }
+            }
+            const result = await purchaseCollection.updateOne(filter, updatedDoc);
+            res.send(result)
+        })
         app.delete("/product/:id", verifyJWT, verifyAdmin, async (req, res) => {
             const id = req.params.id;
             const filter = { _id: ObjectId(id) };
@@ -191,6 +202,7 @@ async function run() {
             const updatedDoc = {
                 $set: {
                     paid: true,
+                    pending: true,
                     transactionId: payment.transactionId
                 }
             }
@@ -200,6 +212,26 @@ async function run() {
             const updatedPurchases = await purchaseCollection.updateOne(filter, updatedDoc);
             res.send(updatedPurchases);
         })
+
+        app.get("/user/:email", verifyJWT, async (req, res) => {
+            const email = req.params.email;
+            const user = await usersCollection.findOne({ email: email });
+            res.send(user)
+        })
+        app.put("/myProfile/:email", verifyJWT, async (req, res) => {
+            const email = req.params.email;
+            const changes = req.body
+            console.log(changes)
+            const filter = { email: email }
+            const options = { upsert: true }
+            const updatedDoc = {
+                $set: changes
+            }
+            console.log(updatedDoc)
+            const updatedUser = await usersCollection.updateOne(filter, updatedDoc, options);
+            res.send(updatedUser)
+        })
+
     }
     finally {
 
