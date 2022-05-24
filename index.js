@@ -35,8 +35,6 @@ const verifyJWT = (req, res, next) => {
 async function run() {
     try {
         await client.connect();
-        // drill-insomnia.drills
-
         const drillCollection = client.db("drill-insomnia").collection("drills");
         const ratingCollection = client.db("drill-insomnia").collection("ratings");
         const usersCollection = client.db("drill-insomnia").collection("users");
@@ -68,7 +66,8 @@ async function run() {
         });
 
         app.get('/tools/home', async (req, res) => {
-            const query = {}
+            const query = {} 
+            
             const tools = await drillCollection.find(query).limit(6).sort({ _id: -1 }).toArray()
             res.send(tools)
         })
