@@ -1,4 +1,4 @@
-const { MongoClient, ServerApiVersion, ObjectId} = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const express = require('express');
 const cors = require('cors');
 require("dotenv").config()
@@ -66,7 +66,7 @@ async function run() {
         });
 
         app.get('/tools/home', async (req, res) => {
-            const query = {} 
+            const query = {}
             const tools = await drillCollection.find(query).limit(6).sort({ _id: -1 }).toArray()
             res.send(tools)
         })
