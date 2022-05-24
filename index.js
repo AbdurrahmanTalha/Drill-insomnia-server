@@ -206,7 +206,6 @@ async function run() {
                     transactionId: payment.transactionId
                 }
             }
-            console.log(updatedDoc)
 
             const result = await paymentCollection.insertOne(payment);
             const updatedPurchases = await purchaseCollection.updateOne(filter, updatedDoc);
