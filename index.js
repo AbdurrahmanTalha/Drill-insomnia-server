@@ -220,13 +220,11 @@ async function run() {
         app.put("/myProfile/:email", verifyJWT, async (req, res) => {
             const email = req.params.email;
             const changes = req.body
-            console.log(changes)
             const filter = { email: email }
             const options = { upsert: true }
             const updatedDoc = {
                 $set: changes
             }
-            console.log(updatedDoc)
             const updatedUser = await usersCollection.updateOne(filter, updatedDoc, options);
             res.send(updatedUser)
         })
