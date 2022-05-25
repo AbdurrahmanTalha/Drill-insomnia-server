@@ -10,3 +10,14 @@
 * Rating
 * Set JWT token
 * Update Quantity
+
+## Technology 
+
+* cors
+* dotenv
+* express
+* jsonwebtoken
+* mongodb
+* nodemon
+* stripe
+
