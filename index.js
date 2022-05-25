@@ -210,7 +210,7 @@ async function run() {
             res.send(updatedPurchases);
         })
 
-        app.get("/user/:email", verifyJWT, async (req, res) => {
+        app.get("/user/:email",  async (req, res) => {
             const email = req.params.email;
             const user = await usersCollection.findOne({ email: email });
             res.send(user)
