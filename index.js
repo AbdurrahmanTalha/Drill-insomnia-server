@@ -169,6 +169,7 @@ async function run() {
             const result = await purchaseCollection.deleteOne(filter);
             res.send(result)
         })
+                    
         app.put('/pending/:id', verifyJWT, async (req, res) => {
             const id = req.params.id;
             const filter = { _id: ObjectId(id) };
